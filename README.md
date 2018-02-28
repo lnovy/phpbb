@@ -31,7 +31,7 @@ Read our [Vagrant documentation](phpBB/docs/vagrant.md) to find out how to use V
 
 We have unit and functional tests in order to prevent regressions. You can view the bamboo continuous integration [here](https://bamboo.phpbb.com) or check our travis builds below:
 
-* [![Build Status](https://travis-ci.org/lnovy/phpbb.svg?branch=master)](http://travis-ci.org/lnovy/phpbb)[![Build status] **master** - Latest development version
+* [![Build Status](https://travis-ci.org/lnovy/phpbb.svg?branch=master)](http://travis-ci.org/lnovy/phpbb) **master** - Latest development version
 
 
 ## LICENSE
