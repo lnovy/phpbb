@@ -18,7 +18,7 @@ define('SPHINX_CONNECT_RETRIES', 3);
 define('SPHINX_CONNECT_WAIT_TIME', 300);
 
 /**
-* Fulltext search based on the sphinx search deamon
+* Fulltext search based on the sphinx search daemon
 */
 class fulltext_sphinx
 {
@@ -210,7 +210,7 @@ class fulltext_sphinx
 	/**
 	* Checks permissions and paths, if everything is correct it generates the config file
 	*
-	* @return string|bool Language key of the error/incompatiblity encountered, or false if successful
+	* @return string|bool Language key of the error/incompatibility encountered, or false if successful
 	*/
 	public function init()
 	{
@@ -758,6 +758,28 @@ class fulltext_sphinx
 	 */
 	public function index($mode, $post_id, &$message, &$subject, $poster_id, $forum_id)
 	{
+		/**
+		* Event to modify method arguments before the Sphinx search index is updated
+		*
+		* @event core.search_sphinx_index_before
+		* @var string	mode				Contains the post mode: edit, post, reply, quote
+		* @var int		post_id				The id of the post which is modified/created
+		* @var string	message				New or updated post content
+		* @var string	subject				New or updated post subject
+		* @var int		poster_id			Post author's user id
+		* @var int		forum_id			The id of the forum in which the post is located
+		* @since 3.2.3-RC1
+		*/
+		$vars = array(
+			'mode',
+			'post_id',
+			'message',
+			'subject',
+			'poster_id',
+			'forum_id',
+		);
+		extract($this->phpbb_dispatcher->trigger_event('core.search_sphinx_index_before', compact($vars)));
+
 		if ($mode == 'edit')
 		{
 			$this->sphinx->UpdateAttributes($this->indexes, array('forum_id', 'poster_id'), array((int) $post_id => array((int) $forum_id, (int) $poster_id)));

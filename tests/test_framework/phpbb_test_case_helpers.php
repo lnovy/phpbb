@@ -95,7 +95,12 @@ class phpbb_test_case_helpers
 			break;
 		}
 		$this->expectedTriggerError = true;
-		$this->test_case->setExpectedException($exceptionName, (string) $message, $errno);
+		$this->test_case->expectException($exceptionName);
+		$this->test_case->expectExceptionCode($errno);
+		if ($message)
+		{
+			$this->test_case->expectExceptionMessage((string) $message);
+		}
 	}
 
 	public function makedirs($path)
@@ -382,10 +387,16 @@ class phpbb_test_case_helpers
 		}
 
 		// Mock the DAL, make it return data from the fixture
+		$db_driver = $this->test_case->getMockBuilder('phpbb\\db\\driver\\driver')
+			->disableOriginalConstructor()
+			->disableOriginalClone()
+			->disableArgumentCloning()
+			->disallowMockingUnknownTypes()
+			->getMock();
 		$mb = $this->test_case->getMockBuilder('phpbb\\textformatter\\data_access');
 		$mb->setMethods(array('get_bbcodes', 'get_censored_words', 'get_smilies', 'get_styles'));
 		$mb->setConstructorArgs(array(
-			$this->test_case->getMock('phpbb\\db\\driver\\driver'),
+			$db_driver,
 			'phpbb_bbcodes',
 			'phpbb_smilies',
 			'phpbb_styles',
@@ -489,8 +500,11 @@ class phpbb_test_case_helpers
 			$request = new phpbb_mock_request;
 		}
 
+		// Get a log interface
+		$log = ($container->has('log')) ? $container->get('log') : $this->test_case->getMockBuilder('phpbb\\log\\log_interface')->getMock();
+
 		// Create and register the text_formatter.s9e.factory service
-		$factory = new \phpbb\textformatter\s9e\factory($dal, $cache, $dispatcher, $config, new \phpbb\textformatter\s9e\link_helper, $cache_dir, $cache_key_parser, $cache_key_renderer);
+		$factory = new \phpbb\textformatter\s9e\factory($dal, $cache, $dispatcher, $config, new \phpbb\textformatter\s9e\link_helper, $log, $cache_dir, $cache_key_parser, $cache_key_renderer);
 		$container->set('text_formatter.s9e.factory', $factory);
 
 		// Create a user if none was provided, and add the common lang strings

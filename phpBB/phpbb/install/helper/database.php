@@ -14,6 +14,7 @@
 namespace phpbb\install\helper;
 
 use phpbb\install\exception\invalid_dbms_exception;
+use phpbb\filesystem\helper as filesystem_helper;
 
 /**
  * Database related general functionality for installer
@@ -329,7 +330,7 @@ class database
 
 		// Make sure we don't have a daft user who thinks having the SQLite database in the forum directory is a good idea
 		if ($dbms_info['SCHEMA'] === 'sqlite'
-			&& stripos($this->filesystem->realpath($dbhost), $this->filesystem->realpath($this->phpbb_root_path) === 0))
+			&& stripos(filesystem_helper::realpath($dbhost), filesystem_helper::realpath($this->phpbb_root_path) === 0))
 		{
 			$errors[] = array(
 				'title' =>'INST_ERR_DB_FORUM_PATH',
@@ -338,7 +339,7 @@ class database
 
 		// Check if SQLite database is writable
 		if ($dbms_info['SCHEMA'] === 'sqlite'
-			&& (!$this->filesystem->is_writable($dbhost) || !$this->filesystem->is_writable(pathinfo($dbhost, PATHINFO_DIRNAME))))
+			&& (($this->filesystem->exists($dbhost) && !$this->filesystem->is_writable($dbhost)) || !$this->filesystem->is_writable(pathinfo($dbhost, PATHINFO_DIRNAME))))
 		{
 			$errors[] = array(
 				'title' =>'INST_ERR_DB_NO_WRITABLE',

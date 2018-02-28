@@ -56,6 +56,7 @@ class phpbb_textformatter_s9e_factory_test extends phpbb_database_test_case
 			$this->dispatcher,
 			new \phpbb\config\config(array('allowed_schemes_links' => 'http,https,ftp')),
 			new \phpbb\textformatter\s9e\link_helper,
+			$this->getMockBuilder('phpbb\\log\\log_interface')->getMock(),
 			$this->get_cache_dir(),
 			'_foo_parser',
 			'_foo_renderer'
@@ -264,11 +265,28 @@ class phpbb_textformatter_s9e_factory_test extends phpbb_database_test_case
 	}
 
 	/**
+	* @testdox Logs malformed BBCodes
+	*/
+	public function test_malformed_bbcodes()
+	{
+		$log = $this->getMockBuilder('phpbb\\log\\log_interface')->getMock();
+		$log->expects($this->once())
+			->method('add')
+			->with('critical', null, null, 'LOG_BBCODE_CONFIGURATION_ERROR', false, ['[x !x]{TEXT}[/x]', 'Cannot interpret the BBCode definition']);
+
+		$container = new phpbb_mock_container_builder;
+		$container->set('log', $log);
+
+		$fixture   = __DIR__ . '/fixtures/malformed_bbcode.xml';
+		$this->get_test_case_helpers()->set_s9e_services($container, $fixture);
+	}
+
+	/**
 	* @testdox get_configurator() triggers events before and after configuration
 	*/
 	public function test_configure_events()
 	{
-		$this->dispatcher = $this->getMock('phpbb\\event\\dispatcher_interface');
+		$this->dispatcher = $this->createMock('phpbb\\event\\dispatcher_interface');
 		$this->dispatcher
 			->expects($this->at(0))
 			->method('trigger_event')

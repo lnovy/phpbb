@@ -502,26 +502,8 @@ class acp_main
 
 		$upload_dir_size = get_formatted_filesize($config['upload_dir_size']);
 
-		$avatar_dir_size = 0;
-
-		if ($avatar_dir = @opendir($phpbb_root_path . $config['avatar_path']))
-		{
-			while (($file = readdir($avatar_dir)) !== false)
-			{
-				if ($file[0] != '.' && $file != 'CVS' && strpos($file, 'index.') === false)
-				{
-					$avatar_dir_size += filesize($phpbb_root_path . $config['avatar_path'] . '/' . $file);
-				}
-			}
-			closedir($avatar_dir);
-
-			$avatar_dir_size = get_formatted_filesize($avatar_dir_size);
-		}
-		else
-		{
-			// Couldn't open Avatar dir.
-			$avatar_dir_size = $user->lang['NOT_AVAILABLE'];
-		}
+		// Couldn't open Avatar dir.
+		$avatar_dir_size = $user->lang['NOT_AVAILABLE'];
 
 		if ($posts_per_day > $total_posts)
 		{
@@ -585,6 +567,7 @@ class acp_main
 			'U_INACTIVE_USERS'	=> append_sid("{$phpbb_admin_path}index.$phpEx", 'i=inactive&amp;mode=list'),
 			'U_VERSIONCHECK'	=> append_sid("{$phpbb_admin_path}index.$phpEx", 'i=update&amp;mode=version_check'),
 			'U_VERSIONCHECK_FORCE'	=> append_sid("{$phpbb_admin_path}index.$phpEx", 'versioncheck_force=1'),
+			'U_ATTACH_ORPHAN'	=> append_sid("{$phpbb_admin_path}index.$phpEx", 'i=acp_attachments&mode=orphan'),
 
 			'S_VERSIONCHECK'	=> ($auth->acl_get('a_board')) ? true : false,
 			'S_ACTION_OPTIONS'	=> ($auth->acl_get('a_board')) ? true : false,
